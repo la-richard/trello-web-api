@@ -7,6 +7,13 @@ defmodule TrelloWebApiWeb.Router do
 
   scope "/api", TrelloWebApiWeb do
     pipe_through :api
+
+    get "/users", UserController, :index
+    post "/users", UserController, :create
+
+    get "/users/:id", UserController, :show
+    put "/users/:id", UserController, :update
+    delete "/users/:id", UserController, :delete
   end
 
   # Enable Swoosh mailbox preview in development

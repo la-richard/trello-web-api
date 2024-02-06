@@ -99,6 +99,6 @@ defmodule TrelloWebApi.Accounts do
 
   """
   def change_user(%User{} = user, attrs \\ %{}) do
-    User.changeset(user, attrs)
+    User.changeset(user, attrs, hash_password: false, validate_email: false)
   end
 end
