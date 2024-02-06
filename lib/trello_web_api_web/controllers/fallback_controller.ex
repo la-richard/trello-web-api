@@ -14,4 +14,11 @@ defmodule TrelloWebApiWeb.FallbackController do
     |> put_view(json: TrelloWebApiWeb.ErrorJSON)
     |> render(:"404")
   end
+
+  def call(conn, {:error, :unauthorized}) do
+    conn
+    |> put_status(:unauthorized)
+    |> put_view(json: TrelloWebApi.ErrorJSON)
+    |> render(:"403")
+  end
 end

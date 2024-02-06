@@ -39,5 +39,7 @@ defmodule TrelloWebApiWeb.UserController do
   def show(conn, %{"id" => id}) do
     user = Accounts.get_user!(id)
     render(conn, :show, user: user)
+  rescue
+    Ecto.NoResultsError -> {:error, :not_found}
   end
 end

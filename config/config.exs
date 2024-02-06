@@ -31,6 +31,10 @@ config :trello_web_api, TrelloWebApiWeb.Endpoint,
 # at the `config/runtime.exs`.
 config :trello_web_api, TrelloWebApi.Mailer, adapter: Swoosh.Adapters.Local
 
+config :trello_web_api, TrelloWebApi.Accounts.Guardian,
+  issuer: "trello_web_api",
+  secret_key: "QLe1ktXPkMZlAmnKDkNsd9Yh9BlnIg1aG84O1wGsCT+QmBT1hkWj5vYSXBuqErh9"
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

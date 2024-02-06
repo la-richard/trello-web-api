@@ -5,11 +5,25 @@ defmodule TrelloWebApiWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :auth do
+    plug TrelloWebApi.Accounts.Pipeline
+  end
+
+  pipeline :ensure_auth do
+    plug Guardian.Plug.EnsureAuthenticated
+  end
+
   scope "/api", TrelloWebApiWeb do
-    pipe_through :api
+    pipe_through [:api, :auth]
+
+    post "/login", AuthController, :login
+    post "/users", UserController, :create
+  end
+
+  scope "/api", TrelloWebApiWeb do
+    pipe_through [:api, :auth, :ensure_auth]
 
     get "/users", UserController, :index
-    post "/users", UserController, :create
 
     get "/users/:id", UserController, :show
     put "/users/:id", UserController, :update
