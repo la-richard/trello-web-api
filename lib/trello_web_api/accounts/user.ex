@@ -5,7 +5,7 @@ defmodule TrelloWebApi.Accounts.User do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "users" do
-    field :password, :string
+    field :password, :string, redact: true
     field :email, :string
 
     timestamps(type: :utc_datetime)
