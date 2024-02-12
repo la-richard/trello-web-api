@@ -6,7 +6,7 @@ defmodule TrelloWebApi.Boards.Board do
   @foreign_key_type :binary_id
   schema "boards" do
     field :name, :string
-    field :visibility, Ecto.Enum, values: [:private, :public]
+    field :visibility, Ecto.Enum, values: [:private, :public], default: :public
 
     belongs_to :owner, TrelloWebApi.Accounts.User
 
