@@ -12,5 +12,6 @@ defmodule TrelloWebApi.Repo.Migrations.CreateLists do
     end
 
     create index(:lists, [:board_id])
+    create unique_index(:lists, [:rank])
   end
 end

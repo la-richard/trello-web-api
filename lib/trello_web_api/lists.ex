@@ -19,7 +19,7 @@ defmodule TrelloWebApi.Lists do
 
   """
   def list_lists(board_id) do
-    Repo.all(from(l in List, where: l.board_id == ^board_id))
+    Repo.all(from(l in List, where: l.board_id == ^board_id, order_by: [asc: l.rank]))
   end
 
   @doc """
@@ -37,7 +37,7 @@ defmodule TrelloWebApi.Lists do
 
   """
   def get_list!(id) do
-    Board
+    List
     |> Repo.get!(id)
     |> Repo.preload([:board])
   end
@@ -58,7 +58,7 @@ defmodule TrelloWebApi.Lists do
     board = Boards.get_board!(board_id)
 
     %List{}
-    |> List.changeset(attrs)
+    |> List.changeset(Map.merge(attrs, %{rank: Ranker.new(List)}))
     |> Ecto.Changeset.put_assoc(:board, board)
     |> Repo.insert()
   end
@@ -108,5 +108,19 @@ defmodule TrelloWebApi.Lists do
   """
   def change_list(%List{} = list, attrs \\ %{}) do
     List.changeset(list, attrs)
+  end
+
+  def reorder_list(list_id, prev_id, next_id) do
+    list = get_list!(list_id)
+
+    rank = Ranker.reorder(List, prev_id, next_id)
+
+    list
+    |> List.changeset(%{rank: rank})
+    |> Repo.update()
+    |> case do
+      {:ok, list} -> {:ok, get_list!(list.id)}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 end

@@ -18,5 +18,6 @@ defmodule TrelloWebApi.Lists.List do
     list
     |> cast(attrs, [:name, :rank])
     |> validate_required([:name, :rank])
+    |> unique_constraint(:rank)
   end
 end
