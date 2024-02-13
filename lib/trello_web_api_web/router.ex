@@ -56,6 +56,13 @@ defmodule TrelloWebApiWeb.Router do
     get "/tasks/:id", TaskController, :show
     put "/tasks/:id", TaskController, :update
     put "/tasks/:id/reorder", TaskController, :reorder
+    get "/tasks/:id/comments", CommentController, :index
+    post "/tasks/:id/comments", CommentController, :create
+
+    get "/comments", CommentController, :index
+    get "/comments/:id", CommentController, :show
+    put "/comments/:id", CommentController, :update
+    delete "/comments/:id", CommentController, :delete
   end
 
   # Enable Swoosh mailbox preview in development

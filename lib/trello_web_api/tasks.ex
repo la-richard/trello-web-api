@@ -157,7 +157,14 @@ defmodule TrelloWebApi.Tasks do
 
   """
   def list_comments(%{"id" => task_id}) do
-    Repo.all(from(c in Comment, where: c.task_id == ^task_id, order_by: [desc: :updated_at]))
+    Repo.all(
+      from(c in Comment,
+        where: c.task_id == ^task_id,
+        left_join: creator in assoc(c, :creator),
+        order_by: [desc: :updated_at],
+        preload: [creator: creator]
+      )
+    )
   end
 
   @doc """
@@ -174,7 +181,13 @@ defmodule TrelloWebApi.Tasks do
       ** (Ecto.NoResultsError)
 
   """
-  def get_comment!(id), do: Repo.get!(Comment, id)
+  def get_comment!(id), do: Repo.one!(
+    from(c in Comment,
+      where: c.id == ^id,
+      left_join: creator in assoc(c, :creator),
+      preload: [creator: creator]
+    )
+  )
 
   @doc """
   Creates a comment.
@@ -197,6 +210,10 @@ defmodule TrelloWebApi.Tasks do
     |> Ecto.Changeset.put_assoc(:task, task)
     |> Ecto.Changeset.put_assoc(:creator, creator)
     |> Repo.insert()
+    |> case do
+      {:ok, comment} -> get_comment!(comment.id)
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   @doc """
@@ -215,6 +232,10 @@ defmodule TrelloWebApi.Tasks do
     comment
     |> Comment.changeset(attrs)
     |> Repo.update()
+    |> case do
+      {:ok, comment} -> get_comment!(comment.id)
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   @doc """
