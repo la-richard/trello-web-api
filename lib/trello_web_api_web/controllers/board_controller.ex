@@ -6,6 +6,11 @@ defmodule TrelloWebApiWeb.BoardController do
 
   action_fallback TrelloWebApiWeb.FallbackController
 
+  def index(%{query_params: %{ "user_id" => user_id}} = conn, _params) do
+    boards = Boards.list_boards(user_id)
+    render(conn, :index, boards: boards)
+  end
+
   def index(conn, _params) do
     boards = Boards.list_boards()
     render(conn, :index, boards: boards)

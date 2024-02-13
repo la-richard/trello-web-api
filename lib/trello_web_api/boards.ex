@@ -8,6 +8,7 @@ defmodule TrelloWebApi.Boards do
   alias TrelloWebApi.Repo
 
   alias TrelloWebApi.Boards.Board
+  alias TrelloWebApi.Boards.BoardUser
 
   @doc """
   Returns the list of boards.
@@ -21,6 +22,7 @@ defmodule TrelloWebApi.Boards do
   def list_boards() do
     Repo.all(
       from(b in Board,
+        where: b.visibility == :public,
         left_join: owner in assoc(b, :owner),
         left_join: users in assoc(b, :users),
         left_join: user in assoc(users, :user),
@@ -29,7 +31,25 @@ defmodule TrelloWebApi.Boards do
     )
   end
 
-  @spec get_board!(any()) :: nil | [%{optional(atom()) => any()}] | %{optional(atom()) => any()}
+  def list_boards(user_id) do
+    Repo.all(
+      from(b in Board,
+        where: b.owner_id == ^user_id,
+        or_where: b.id in subquery(
+          from(u in BoardUser,
+            select: u.board_id,
+            where: u.user_id ==^user_id
+          )
+        ),
+        left_join: owner in assoc(b, :owner),
+        left_join: users in assoc(b, :users),
+        left_join: user in assoc(users, :user),
+        order_by: [desc: :updated_at],
+        preload: [owner: owner, users: {users, user: user}]
+      )
+    )
+  end
+
   @doc """
   Gets a single board.
 
@@ -45,9 +65,15 @@ defmodule TrelloWebApi.Boards do
 
   """
   def get_board!(id) do
-    Board
-    |> Repo.get!(id)
-    |> Repo.preload([:owner, users: [:user]])
+    Repo.one!(
+      from(b in Board,
+        where: b.id == ^id,
+        left_join: owner in assoc(b, :owner),
+        left_join: users in assoc(b, :users),
+        left_join: user in assoc(users, :user),
+        preload: [owner: owner, users: {users, user: user}]
+      )
+    )
   end
 
   @doc """
@@ -69,6 +95,10 @@ defmodule TrelloWebApi.Boards do
     |> Board.changeset(attrs)
     |> Ecto.Changeset.put_assoc(:owner, owner)
     |> Repo.insert()
+    |> case do
+      {:ok, board} -> {:ok, get_board!(board.id)}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   @doc """
