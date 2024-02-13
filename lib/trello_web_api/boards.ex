@@ -18,10 +18,18 @@ defmodule TrelloWebApi.Boards do
       [%Board{}, ...]
 
   """
-  def list_boards do
-    Repo.all(Board)
+  def list_boards() do
+    Repo.all(
+      from(b in Board,
+        left_join: owner in assoc(b, :owner),
+        left_join: users in assoc(b, :users),
+        left_join: user in assoc(users, :user),
+        preload: [owner: owner, users: {users, user: user}]
+      )
+    )
   end
 
+  @spec get_board!(any()) :: nil | [%{optional(atom()) => any()}] | %{optional(atom()) => any()}
   @doc """
   Gets a single board.
 
@@ -112,15 +120,14 @@ defmodule TrelloWebApi.Boards do
 
   alias TrelloWebApi.Boards.BoardUser
 
-  def add_user_to_board(user_id, board_id, permission \\ :read) do
+  def add_user_to_board(board, %{"user_id" => user_id, "permission" => permission}) do
     user = Accounts.get_user!(user_id)
-    board = get_board!(board_id)
 
-    %BoardUser{permission: permission}
+    %BoardUser{permission: String.to_atom(permission)}
     |> BoardUser.changeset(%{})
     |> Ecto.Changeset.put_assoc(:user, user)
     |> Ecto.Changeset.put_assoc(:board, board)
-    |> Repo.insert()
+    |> Repo.insert(on_conflict: [set: [permission: permission]], conflict_target: [:board_id, :user_id])
   end
 
   @doc """
@@ -133,7 +140,7 @@ defmodule TrelloWebApi.Boards do
 
   """
   def list_board_users(board_id) do
-    Repo.all(from(b in BoardUser, where: b.board_id == ^board_id, preload: [:board, :user]))
+    Repo.all(from(b in BoardUser, where: b.board_id == ^board_id, preload: [:user]))
   end
 
   @doc """

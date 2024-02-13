@@ -18,5 +18,6 @@ defmodule TrelloWebApi.Boards.BoardUser do
     board_user
     |> cast(attrs, [:permission])
     |> validate_required([:permission])
+    |> unique_constraint([:board_id, :user_id])
   end
 end
