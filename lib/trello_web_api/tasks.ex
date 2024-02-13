@@ -60,7 +60,7 @@ defmodule TrelloWebApi.Tasks do
     reporter = Accounts.get_user!(reporter_id)
 
     %Task{}
-    |> Task.changeset(Map.merge(attrs, %{rank: Ranker.new(Task)}))
+    |> Task.changeset(Map.merge(attrs, %{"rank" => Ranker.new(Task)}))
     |> Ecto.Changeset.put_assoc(:list, list)
     |> Ecto.Changeset.put_assoc(:reporter, reporter)
     |> Repo.insert()
