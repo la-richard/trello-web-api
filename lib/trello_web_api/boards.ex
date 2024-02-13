@@ -158,6 +158,10 @@ defmodule TrelloWebApi.Boards do
     |> Ecto.Changeset.put_assoc(:user, user)
     |> Ecto.Changeset.put_assoc(:board, board)
     |> Repo.insert(on_conflict: [set: [permission: permission]], conflict_target: [:board_id, :user_id])
+    |> case do
+      {:ok, _} -> {:ok, get_board_user!(board.id, user_id)}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   @doc """
@@ -187,7 +191,15 @@ defmodule TrelloWebApi.Boards do
       ** (Ecto.NoResultsError)
 
   """
-  def get_board_user!(id), do: Repo.get!(BoardUser, id)
+  def get_board_user!(board_id, user_id) do
+    Repo.one!(
+      from(u in BoardUser,
+        where: [user_id: ^user_id, board_id: ^board_id],
+        left_join: user in assoc(u, :user),
+        preload: [user: user]
+      )
+    )
+  end
 
   @doc """
   Creates a board_user.

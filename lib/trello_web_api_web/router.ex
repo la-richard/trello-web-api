@@ -35,6 +35,11 @@ defmodule TrelloWebApiWeb.Router do
     get "/boards/:id", BoardController, :show
     put "/boards/:id", BoardController, :update
     delete "/boards/:id", BoardController, :delete
+
+    get "/boards/:id/users", BoardUserController, :index
+    put "/boards/:id/users", BoardUserController, :create_or_update
+    get "/boards/:id/users/:user_id", BoardUserController, :show
+    delete "/boards/:id/users/:user_id", BoardUserController, :delete
   end
 
   # Enable Swoosh mailbox preview in development
