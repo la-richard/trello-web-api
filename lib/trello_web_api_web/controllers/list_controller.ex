@@ -16,7 +16,7 @@ defmodule TrelloWebApiWeb.ListController do
   end
 
   def create(conn, %{"board_id" => board_id, "list" => list_params}) do
-    with {:ok, list} = Lists.create_list(board_id, list_params) do
+    with {:ok, list} <- Lists.create_list(board_id, list_params) do
       render(conn, :show, list: list)
     end
   end
@@ -24,7 +24,7 @@ defmodule TrelloWebApiWeb.ListController do
   def update(conn, %{"id" => list_id, "list" => list_params}) do
     list = Lists.get_list!(list_id)
 
-    with {:ok, list} = Lists.update_list(list, list_params) do
+    with {:ok, list} <- Lists.update_list(list, list_params) do
       render(conn, :show, list: list)
     end
   end
@@ -32,7 +32,7 @@ defmodule TrelloWebApiWeb.ListController do
   def reorder(conn, %{"id" => list_id} = params) do
     prev_id = Map.get(params, "prev_id")
     next_id = Map.get(params, "next_id")
-    with {:ok, list} = Lists.reorder_list(list_id, prev_id, next_id) do
+    with {:ok, list} <- Lists.reorder_list(list_id, prev_id, next_id) do
       render(conn, :show, list: list)
     end
   end
@@ -40,7 +40,7 @@ defmodule TrelloWebApiWeb.ListController do
   def delete(conn, %{"id" => list_id}) do
     list = Lists.get_list!(list_id)
 
-    with {:ok, list} = Lists.delete_list(list) do
+    with {:ok, list} <- Lists.delete_list(list) do
       render(conn, :show, list: list)
     end
   end
