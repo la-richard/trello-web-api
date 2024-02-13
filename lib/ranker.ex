@@ -9,8 +9,8 @@ defmodule Ranker do
   end
 
   def reorder(schema, prev_id, next_id) do
-    prev = Repo.get(schema, prev_id)
-    next = Repo.get(schema, next_id)
+    prev = if prev_id, do: Repo.get(schema, prev_id), else: nil
+    next = if next_id, do: Repo.get(schema, next_id), else: nil
 
     rank_reorder(schema, prev, next)
   end
