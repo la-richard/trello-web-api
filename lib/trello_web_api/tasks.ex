@@ -19,8 +19,12 @@ defmodule TrelloWebApi.Tasks do
       [%Task{}, ...]
 
   """
-  def list_tasks(list_id) do
+  def list_tasks(%{"list_id" => list_id}) do
     Repo.all(from(t in Task, where: t.list_id == ^list_id, order_by: [asc: t.rank]))
+  end
+
+  def list_tasks(%{}) do
+    Repo.all(Task)
   end
 
   @doc """
@@ -120,6 +124,20 @@ defmodule TrelloWebApi.Tasks do
 
     task
     |> Task.changeset(%{rank: rank})
+    |> Repo.update()
+    |> case do
+      {:ok, task} -> {:ok, get_task!(task.id)}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  def assign_task_to_user(task_id, assignee_id) do
+    task = get_task!(task_id)
+    assignee = Accounts.get_user!(assignee_id)
+
+    task
+    |> Task.changeset(%{})
+    |> Ecto.Changeset.put_assoc(:assignee, assignee)
     |> Repo.update()
     |> case do
       {:ok, task} -> {:ok, get_task!(task.id)}

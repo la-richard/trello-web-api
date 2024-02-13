@@ -45,8 +45,17 @@ defmodule TrelloWebApiWeb.Router do
     post "/boards/:board_id/lists", ListController, :create
 
     get "/lists", ListController, :index
+    get "/lists/:id", ListController, :show
     put "/lists/:id", ListController, :update
     put "/lists/:id/reorder", ListController, :reorder
+
+    get "/lists/:list_id/tasks", TaskController, :index
+    post "/lists/:list_id/tasks", TaskController, :create
+
+    get "/tasks", TaskController, :index
+    get "/tasks/:id", TaskController, :show
+    put "/tasks/:id", TaskController, :update
+    put "/tasks/:id/reorder", TaskController, :reorder
   end
 
   # Enable Swoosh mailbox preview in development
