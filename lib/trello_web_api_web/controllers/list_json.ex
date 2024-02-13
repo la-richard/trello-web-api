@@ -13,8 +13,7 @@ defmodule TrelloWebApiWeb.ListJSON do
     %{
       id: list.id,
       name: list.name,
-      board_id: list.board_id,
-      rank: list.rank
+      board_id: list.board_id
     }
   end
 end
