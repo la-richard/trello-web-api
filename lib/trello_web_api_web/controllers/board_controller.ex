@@ -44,8 +44,6 @@ defmodule TrelloWebApiWeb.BoardController do
   def show(conn, %{"id" => id}) do
     board = Boards.get_board!(id)
     render(conn, :show, board: board)
-  rescue
-    Ecto.NoResultsError -> {:error, :not_found}
   end
 
 end
