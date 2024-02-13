@@ -14,6 +14,8 @@ defmodule TrelloWebApi.Tasks.Task do
     belongs_to :assignee, TrelloWebApi.Accounts.User
     belongs_to :list, TrelloWebApi.Lists.List
 
+    has_many :comments, TrelloWebApi.Tasks.Comment
+
     timestamps(type: :utc_datetime)
   end
 

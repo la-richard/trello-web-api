@@ -25,4 +25,18 @@ defmodule TrelloWebApi.TasksFixtures do
 
     task
   end
+
+  @doc """
+  Generate a comment.
+  """
+  def comment_fixture(attrs \\ %{}) do
+    {:ok, comment} =
+      attrs
+      |> Enum.into(%{
+        body: "some body"
+      })
+      |> TrelloWebApi.Tasks.create_comment()
+
+    comment
+  end
 end
