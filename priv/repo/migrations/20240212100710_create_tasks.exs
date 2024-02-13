@@ -5,7 +5,7 @@ defmodule TrelloWebApi.Repo.Migrations.CreateTasks do
     create table(:tasks, primary_key: false) do
       add :id, :binary_id, primary_key: true
       add :name, :string
-      add :details, :string
+      add :details, :text
       add :rank, :string
       add :completed, :boolean, default: false, null: false
       add :reporter_id, references(:users, on_delete: :nothing, type: :binary_id)
