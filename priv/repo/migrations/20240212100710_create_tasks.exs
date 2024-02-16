@@ -9,8 +9,8 @@ defmodule TrelloWebApi.Repo.Migrations.CreateTasks do
       add :rank, :string
       add :completed, :boolean, default: false, null: false
       add :reporter_id, references(:users, on_delete: :nothing, type: :binary_id)
-      add :assignee_id, references(:users, on_delete: :nothing, type: :binary_id)
-      add :list_id, references(:lists, on_delete: :nothing, type: :binary_id)
+      add :assignee_id, references(:users, on_delete: :nothing, on_replace: :nilify, type: :binary_id)
+      add :list_id, references(:lists, on_delete: :nothing, on_replace: :nilify, type: :binary_id)
 
       timestamps(type: :utc_datetime)
     end

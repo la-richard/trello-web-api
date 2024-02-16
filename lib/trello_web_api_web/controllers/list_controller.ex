@@ -17,7 +17,10 @@ defmodule TrelloWebApiWeb.ListController do
 
   def create(conn, %{"board_id" => board_id, "list" => list_params}) do
     with {:ok, list} <- Lists.create_list(board_id, list_params) do
-      render(conn, :show, list: list)
+      conn
+      |> put_status(:created)
+      |> put_resp_header("location", ~p"/api/lists/#{list}")
+      |> render(:show, list: list)
     end
   end
 

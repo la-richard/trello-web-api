@@ -20,7 +20,16 @@ defmodule TrelloWebApi.Tasks do
 
   """
   def list_tasks(%{"list_id" => list_id}) do
-    Repo.all(from(t in Task, where: t.list_id == ^list_id, order_by: [asc: t.rank]))
+    Repo.all(
+      from(t in Task,
+        where: t.list_id == ^list_id,
+        order_by: [asc: t.rank],
+        left_join: reporter in assoc(t, :reporter),
+        left_join: assignee in assoc(t, :assignee),
+        left_join: list in assoc(t, :list),
+        preload: [reporter: reporter, assignee: assignee, list: list]
+        )
+      )
   end
 
   def list_tasks(%{}) do
@@ -42,9 +51,17 @@ defmodule TrelloWebApi.Tasks do
 
   """
   def get_task!(id) do
-    Task
-    |> Repo.get!(id)
-    |> Repo.preload([:reporter, :assignee, :list])
+    Repo.one!(
+      from(t in Task,
+        where: t.id == ^id,
+        left_join: reporter in assoc(t, :reporter),
+        left_join: assignee in assoc(t, :assignee),
+        left_join: list in assoc(t, :list),
+        left_join: comments in assoc(t, :comments),
+        left_join: creator in assoc(comments, :creator),
+        preload: [reporter: reporter, assignee: assignee, list: list, comments: {comments, creator: creator}]
+      )
+    )
   end
 
   @doc """
@@ -131,6 +148,40 @@ defmodule TrelloWebApi.Tasks do
     end
   end
 
+  def move_to_list_and_reorder(list_id, task_id, nil, nil) do
+    IO.inspect(list_id)
+    IO.inspect(task_id)
+    list = Lists.get_list!(list_id)
+    task = get_task!(task_id)
+
+    rank = Ranker.new(Task)
+
+    task
+    |> Task.changeset(%{rank: rank})
+    |> Ecto.Changeset.put_assoc(:list, list)
+    |> Repo.update()
+    |> case do
+      {:ok, task} -> {:ok, get_task!(task.id)}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  def move_to_list_and_reorder(list_id, task_id, prev_id, next_id) do
+    list = Lists.get_list!(list_id)
+    task = get_task!(task_id)
+
+    rank = Ranker.reorder(Task, prev_id, next_id)
+
+    task
+    |> Task.changeset(%{rank: rank})
+    |> Ecto.Changeset.put_assoc(:list, list)
+    |> Repo.update()
+    |> case do
+      {:ok, task} -> {:ok, get_task!(task.id)}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
   def assign_task_to_user(task_id, assignee_id) do
     task = get_task!(task_id)
     assignee = Accounts.get_user!(assignee_id)
@@ -161,7 +212,7 @@ defmodule TrelloWebApi.Tasks do
       from(c in Comment,
         where: c.task_id == ^task_id,
         left_join: creator in assoc(c, :creator),
-        order_by: [desc: :updated_at],
+        order_by: [asc: :updated_at],
         preload: [creator: creator]
       )
     )
@@ -211,7 +262,7 @@ defmodule TrelloWebApi.Tasks do
     |> Ecto.Changeset.put_assoc(:creator, creator)
     |> Repo.insert()
     |> case do
-      {:ok, comment} -> get_comment!(comment.id)
+      {:ok, comment} -> {:ok, get_comment!(comment.id)}
       {:error, changeset} -> {:error, changeset}
     end
   end
@@ -233,7 +284,7 @@ defmodule TrelloWebApi.Tasks do
     |> Comment.changeset(attrs)
     |> Repo.update()
     |> case do
-      {:ok, comment} -> get_comment!(comment.id)
+      {:ok, comment} -> {:ok, get_comment!(comment.id)}
       {:error, changeset} -> {:error, changeset}
     end
   end

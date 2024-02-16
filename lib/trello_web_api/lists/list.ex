@@ -10,6 +10,8 @@ defmodule TrelloWebApi.Lists.List do
 
     belongs_to :board, TrelloWebApi.Boards.Board
 
+    has_many :tasks, TrelloWebApi.Tasks.Task
+
     timestamps(type: :utc_datetime)
   end
 

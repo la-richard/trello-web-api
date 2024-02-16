@@ -11,6 +11,7 @@ defmodule TrelloWebApi.Boards.Board do
     belongs_to :owner, TrelloWebApi.Accounts.User
 
     has_many :users, TrelloWebApi.Boards.BoardUser
+    has_many :lists, TrelloWebApi.Lists.List
 
     timestamps(type: :utc_datetime)
   end

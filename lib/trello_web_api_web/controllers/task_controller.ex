@@ -13,9 +13,12 @@ defmodule TrelloWebApiWeb.TaskController do
     render(conn, :show, task: task)
   end
 
-  def create(conn, %{"id" => list_id, "reporter_id" => reporter_id, "task" => task_params}) do
+  def create(conn, %{"list_id" => list_id, "reporter_id" => reporter_id, "task" => task_params}) do
     with {:ok, task} <- Tasks.create_task(list_id, reporter_id, task_params) do
-      render(conn, :show, task: task)
+      conn
+      |> put_status(:created)
+      |> put_resp_header("location", ~p"/api/tasks/#{task}")
+      |> render(:show, task: task)
     end
   end
 
@@ -36,10 +39,19 @@ defmodule TrelloWebApiWeb.TaskController do
   end
 
   def reorder(conn, %{"id" => task_id} = params) do
+    list_id = Map.get(params, "list_id")
     prev_id = Map.get(params, "prev_id")
     next_id = Map.get(params, "next_id")
-    with {:ok, task} <- Tasks.reorder_task(task_id, prev_id, next_id) do
-      render(conn, :show, task: task)
+    if list_id do
+      IO.inspect(next_id)
+      IO.inspect(prev_id)
+      with {:ok, task} <- Tasks.move_to_list_and_reorder(list_id, task_id, prev_id, next_id) do
+        render(conn, :show, task: task)
+      end
+    else
+      with {:ok, task} <- Tasks.reorder_task(task_id, prev_id, next_id) do
+        render(conn, :show, task: task)
+      end
     end
   end
 

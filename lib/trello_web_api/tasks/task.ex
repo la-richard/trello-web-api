@@ -10,9 +10,9 @@ defmodule TrelloWebApi.Tasks.Task do
     field :rank, :string
     field :completed, :boolean, default: false
 
-    belongs_to :reporter, TrelloWebApi.Accounts.User
-    belongs_to :assignee, TrelloWebApi.Accounts.User
-    belongs_to :list, TrelloWebApi.Lists.List
+    belongs_to :reporter, TrelloWebApi.Accounts.User, on_replace: :nilify
+    belongs_to :assignee, TrelloWebApi.Accounts.User, on_replace: :nilify
+    belongs_to :list, TrelloWebApi.Lists.List, on_replace: :nilify
 
     has_many :comments, TrelloWebApi.Tasks.Comment
 

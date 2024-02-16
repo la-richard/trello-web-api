@@ -47,7 +47,15 @@ defmodule TrelloWebApi.Lists do
 
   """
   def get_list!(id) do
-    Repo.get!(List, id)
+    Repo.one!(
+      from(l in List,
+        where: l.id == ^id,
+        left_join: tasks in assoc(l, :tasks),
+        left_join: reporter in assoc(tasks, :reporter),
+        left_join: assignee in assoc(tasks, :assignee),
+        preload: [tasks: {tasks, [reporter: reporter, assignee: assignee]}]
+      )
+    )
   end
 
   @doc """
@@ -69,6 +77,10 @@ defmodule TrelloWebApi.Lists do
     |> List.changeset(Map.merge(attrs, %{"rank" => Ranker.new(List)}))
     |> Ecto.Changeset.put_assoc(:board, board)
     |> Repo.insert()
+    |> case do
+      {:ok, list} -> {:ok, get_list!(list.id)}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   @doc """
