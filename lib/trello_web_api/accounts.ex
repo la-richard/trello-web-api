@@ -21,6 +21,15 @@ defmodule TrelloWebApi.Accounts do
     Repo.all(User)
   end
 
+  def list_users(search_query) do
+    query_string = "%#{search_query}%"
+    Repo.all(
+      from(u in User,
+        where: ilike(u.email, ^query_string)
+      )
+    )
+  end
+
   @doc """
   Gets a single user.
 

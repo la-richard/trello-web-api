@@ -26,6 +26,7 @@ defmodule TrelloWebApi.Boards do
         left_join: owner in assoc(b, :owner),
         left_join: users in assoc(b, :users),
         left_join: user in assoc(users, :user),
+        order_by: [desc: :updated_at],
         preload: [owner: owner, users: {users, user: user}]
       )
     )
@@ -34,7 +35,8 @@ defmodule TrelloWebApi.Boards do
   def list_boards(user_id) do
     Repo.all(
       from(b in Board,
-        where: b.owner_id == ^user_id,
+        where: b.visibility == :public,
+        or_where: b.owner_id == ^user_id,
         or_where: b.id in subquery(
           from(u in BoardUser,
             select: u.board_id,

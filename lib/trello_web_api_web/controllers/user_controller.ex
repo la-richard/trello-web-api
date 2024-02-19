@@ -6,6 +6,11 @@ defmodule TrelloWebApiWeb.UserController do
 
   action_fallback TrelloWebApiWeb.FallbackController
 
+  def index(conn, %{"search_query" => search_query}) do
+    users = Accounts.list_users(search_query)
+    render(conn, :index, users: users)
+  end
+
   def index(conn, _params) do
     users = Accounts.list_users()
     render(conn, :index, users: users)

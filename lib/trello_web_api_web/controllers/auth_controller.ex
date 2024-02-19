@@ -19,4 +19,12 @@ defmodule TrelloWebApiWeb.AuthController do
         |> render(:"403")
     end
   end
+
+  def verify_user(conn, _params) do
+    current_user = Guardian.Plug.current_resource(conn)
+
+    conn
+    |> put_view(json: TrelloWebApiWeb.UserJSON)
+    |> render(:verify, user: current_user)
+  end
 end

@@ -13,6 +13,10 @@ defmodule TrelloWebApiWeb.UserJSON do
     %{data: %{user: data(user), token: token}}
   end
 
+  def verify(%{user: user}) do
+    %{data: data(user)}
+  end
+
   defp data(%User{} = user) do
     %{
       id: user.id,

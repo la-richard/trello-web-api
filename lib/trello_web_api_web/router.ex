@@ -24,6 +24,7 @@ defmodule TrelloWebApiWeb.Router do
     pipe_through [:api, :auth, :ensure_auth]
 
     get "/users", UserController, :index
+    get "/users/verify", AuthController, :verify_user
 
     get "/users/:id", UserController, :show
     put "/users/:id", UserController, :update
@@ -47,6 +48,7 @@ defmodule TrelloWebApiWeb.Router do
     get "/lists", ListController, :index
     get "/lists/:id", ListController, :show
     put "/lists/:id", ListController, :update
+    delete "/lists/:id", ListController, :delete
     put "/lists/:id/reorder", ListController, :reorder
 
     get "/lists/:list_id/tasks", TaskController, :index
@@ -55,6 +57,7 @@ defmodule TrelloWebApiWeb.Router do
     get "/tasks", TaskController, :index
     get "/tasks/:id", TaskController, :show
     put "/tasks/:id", TaskController, :update
+    delete "/tasks/:id/", TaskController, :delete
     put "/tasks/:id/reorder", TaskController, :reorder
     get "/tasks/:id/comments", CommentController, :index
     post "/tasks/:id/comments", CommentController, :create

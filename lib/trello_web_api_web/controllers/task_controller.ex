@@ -23,7 +23,7 @@ defmodule TrelloWebApiWeb.TaskController do
   end
 
   def update(conn, %{"id" => task_id, "task" => task_params}) do
-    task = Tasks.update_task(task_id, task_params)
+    task = Tasks.get_task!(task_id)
 
     with {:ok, task} <- Tasks.update_task(task, task_params) do
       render(conn, :show, task: task)
